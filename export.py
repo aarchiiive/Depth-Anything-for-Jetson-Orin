@@ -60,7 +60,10 @@ def export(
     # - flag: FP32 | FP16 (Choose your precision)
     # - workspace: 2 << 30
     # Hint: Initialize `config`
-    # Reference: https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/Core/Builder.html#tensorrt.Builder.create_builder_config
+    # Reference:
+    # - https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/Core/Builder.html#tensorrt.Builder.create_builder_config
+    # - https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/Core/BuilderConfig.html?highlight=builderflag#tensorrt.BuilderFlag
+    # - https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/Core/BuilderConfig.html?highlight=builderflag#tensorrt.MemoryPoolType
     ### TODO: Write your code here (3 lines)
 
 
