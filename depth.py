@@ -69,54 +69,19 @@ class DepthEngine:
         # For visualization, change raw to False
         if raw: self.raw_depth = None
 
-        ### Load the TensorRT engine
-
-        # Initialize the TensorRT runtime
-        # Reference: https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/Core/Runtime.html#tensorrt.Runtime
-        ### TODO: Write your code here (1 line)
-
-        ###############################################################################################################################################
-
-        # Deserialize the engine
-        # Hint: Use `open` to read the engine file in binary mode
-        # Reference: https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/Core/Runtime.html#tensorrt.Runtime.deserialize_cuda_engine
-        ### TODO: Write your code here (1 line)
-
-        ###############################################################################################################################################
-
-        # Create an execution context
-        # Reference: https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/Core/Engine.html#tensorrt.ICudaEngine.create_execution_context
-        ### TODO: Write your code here (1 line)
-
-        ###############################################################################################################################################
-
+        # Load the TensorRT engine
+        self.runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING))
+        self.engine = self.runtime.deserialize_cuda_engine(open(trt_engine_path, 'rb').read())
+        self.context = self.engine.create_execution_context()
         print(f"Engine loaded from {trt_engine_path}")
 
         # Allocate pagelocked memory
-        # Requirements:
-        # - Input: (1, 3, input_size, input_size)
-        # - Output: (1, input_size, input_size)
-        # Hint 1: Use `cuda.pagelocked_empty` to allocate pagelocked memory
-        # Hint 2: Use `trt.volume` to calculate the volume of the tensor
-        # Hint 3: Create two pagelocked memory for input and output
-        # Hint 4: Use `np.float32` as the data type
-        # Reference:
-        # - https://documen.tician.de/pycuda/driver.html#pycuda.driver.pagelocked_empty
-        # - https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/FoundationalTypes/Dims.html#tensorrt.volume
-        ### TODO: Write your code here (2 lines)
-
-
-        ###############################################################################################################################################
+        self.h_input = cuda.pagelocked_empty(trt.volume((1, 3, self.width, self.height)), dtype=np.float32)
+        self.h_output = cuda.pagelocked_empty(trt.volume((1, 1, self.width, self.height)), dtype=np.float32)
 
         # Allocate device memory
-        # Hint 1: Use `cuda.mem_alloc` to allocate device memory
-        # Hint 2: Use `h_input.nbytes` and `h_output.nbytes` to calculate the size of the memory
-        # Reference:
-        # - https://documen.tician.de/pycuda/driver.html#pycuda.driver.mem_alloc
-        ### TODO: Write your code here (2 lines)
-
-
-        ###############################################################################################################################################
+        self.d_input = cuda.mem_alloc(self.h_input.nbytes)
+        self.d_output = cuda.mem_alloc(self.h_output.nbytes)
 
         # Create a cuda stream
         self.cuda_stream = cuda.Stream()
