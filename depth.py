@@ -69,11 +69,26 @@ class DepthEngine:
         # For visualization, change raw to False
         if raw: self.raw_depth = None
 
-        # Load the TensorRT engine
-        self.runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING))
-        self.engine = self.runtime.deserialize_cuda_engine(open(trt_engine_path, 'rb').read())
-        self.context = self.engine.create_execution_context()
-        print(f"Engine loaded from {trt_engine_path}")
+        ### Load the TensorRT engine
+
+        # Initialize the TensorRT runtime
+        # Reference: https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/Core/Runtime.html#tensorrt.Runtime
+        ### TODO: Write your code here (1 line)
+
+        ###############################################################################################################################################
+
+        # Deserialize the engine
+        # Hint: Use `open` to read the engine file in binary mode
+        # Reference: https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/Core/Runtime.html#tensorrt.Runtime.deserialize_cuda_engine
+        ### TODO: Write your code here (1 line)
+
+        ###############################################################################################################################################
+
+        # Create an execution context
+        # Reference: https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/Core/Engine.html#tensorrt.ICudaEngine.create_execution_context
+        ### TODO: Write your code here (1 line)
+
+        ###############################################################################################################################################
 
         # Allocate pagelocked memory
         self.h_input = cuda.pagelocked_empty(trt.volume((1, 3, self.width, self.height)), dtype=np.float32)
@@ -157,31 +172,13 @@ class DepthEngine:
         t0 = time.time()
 
         # Copy the input image to the pagelocked memory
-        # Hint 1: Use `np.copyto` to copy the image to the pagelocked memory
-        # Hint 2: Flatten the image using `ravel`
-        # Reference: https://numpy.org/doc/stable/reference/generated/numpy.copyto.html
-        ### TODO: Write your code here (1 line)
-
-        ###############################################################################################################################################
+        np.copyto(self.h_input, image.ravel())
 
         # Copy the input to the GPU, execute the inference, and copy the output back to the CPU
-        # Hint 1: Use `cuda.memcpy_htod_async` to copy the input to the GPU
-        # Hint 2: Use `context.execute_async_v2` to execute the inference
-        # Reference:
-        # - https://documen.tician.de/pycuda/driver.html#pycuda.driver.memcpy_htod_async
-        # - https://developer.nvidia.com/docs/drive/drive-os/6.0.8/public/drive-os-tensorrt/api-reference/docs/python/infer/Core/ExecutionContext.html#tensorrt.IExecutionContext.execute_async_v2
-        # - https://documen.tician.de/pycuda/driver.html#pycuda.driver.memcpy_dtoh_async
-        ### TODO: Write your code here (3 lines)
-
-
-
-        ###############################################################################################################################################
-
-        # Synchronize the stream
-        # Reference: https://documen.tician.de/pycuda/driver.html#pycuda.driver.Stream.synchronize
-        ### TODO: Write your code here (1 line)
-
-        ###############################################################################################################################################
+        cuda.memcpy_htod_async(self.d_input, self.h_input, self.cuda_stream)
+        self.context.execute_async_v2(bindings=[int(self.d_input), int(self.d_output)], stream_handle=self.cuda_stream.handle)
+        cuda.memcpy_dtoh_async(self.h_output, self.d_output, self.cuda_stream)
+        self.cuda_stream.synchronize()
 
         print(f"Inference time: {time.time() - t0:.4f}s")
 
