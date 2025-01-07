@@ -28,7 +28,7 @@ def export(
 
     # Load the model
     model = DepthAnything.from_pretrained(weights_path).to('cpu').eval()
-₩₩
+
     # Create a dummy input
     dummy_input = torch.ones((3, input_size, input_size)).unsqueeze(0)
     _ = model(dummy_input)
