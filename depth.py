@@ -178,7 +178,7 @@ class DepthEngine:
         ###############################################################################################################################################
 
         # Synchronize the stream
-        # https://developer.nvidia.com/docs/drive/drive-os/6.0.8/public/drive-os-tensorrt/api-reference/docs/python/infer/Core/ExecutionContext.html#tensorrt.IExecutionContext.execute_async_v2
+        # Reference: https://documen.tician.de/pycuda/driver.html#pycuda.driver.Stream.synchronize
         ### TODO: Write your code here (1 line)
 
         ###############################################################################################################################################
