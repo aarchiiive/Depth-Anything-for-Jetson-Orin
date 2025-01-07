@@ -90,6 +90,8 @@ class DepthEngine:
 
         ###############################################################################################################################################
 
+        print(f"Engine loaded from {trt_engine_path}")
+
         # Allocate pagelocked memory
         self.h_input = cuda.pagelocked_empty(trt.volume((1, 3, self.width, self.height)), dtype=np.float32)
         self.h_output = cuda.pagelocked_empty(trt.volume((1, 1, self.width, self.height)), dtype=np.float32)
